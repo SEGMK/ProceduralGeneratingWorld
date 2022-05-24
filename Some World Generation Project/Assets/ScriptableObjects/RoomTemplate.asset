@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30f59265037532a42a59f4b126e2b20d, type: 3}
+  m_Name: RoomTemplate
+  m_EditorClassIdentifier: 
+  NormalFloorTiles:
+  - {fileID: 6136863714036271880, guid: ab90ffc26dc44fc44acfeac460212390, type: 3}
+  - {fileID: 5535018750124384210, guid: 49a3944e64c587743834ded9e219a378, type: 3}
+  Walls:
+  - {fileID: 813141214964886391, guid: 6e2cc009e5195294eb0221aef0699e33, type: 3}
+  - {fileID: 5853632498627872431, guid: d0dc25fc9489e424098f479c34724545, type: 3}
+  MinRoomSize: 5
+  MaxRoomSize: 12
