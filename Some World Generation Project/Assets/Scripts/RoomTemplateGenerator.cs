@@ -6,6 +6,7 @@ public class RoomTemplateGenerator : ScriptableObject
 {
     [SerializeField] private GameObject[] NormalFloorTiles;
     [SerializeField] private GameObject[] Walls;
+    [SerializeField] private GameObject PathsCrossPoint;
     [SerializeField] private int MinRoomSize;
     [SerializeField] private int MaxRoomSize;
     private const int WallThickness = 1; //leave it or rewrite GenerateWalls Method
@@ -15,19 +16,10 @@ public class RoomTemplateGenerator : ScriptableObject
         GenerateWalls(ref room, Walls);
         return room;
     }
-    public void PrintRoomOnTheMap(GameObject[,] room)
-    {
-        for (int i = 0; i < room.GetLength(0); i++)
-        {
-            for (int j = 0; j < room.GetLength(1); j++)
-            {
-                Instantiate(room[i, j], new Vector3(i, j, 0), Quaternion.identity);
-            }
-        }
-    }
     private GameObject[,] GenerateFloor(GameObject[] floorTiles, (int, int) size)
     {
         GameObject[,] roomFloor = new GameObject[size.Item1 + (WallThickness * 2), size.Item2 + (WallThickness * 2)];
+        (int, int) pathCrossPoint = (Random.Range(1, size.Item1), Random.Range(1, size.Item2)); //this is a point needed to draw path through rooms
         for (int i = 0; i < roomFloor.GetLength(0); i++)
         {
             for (int j = 0; j < roomFloor.GetLength(1); j++)
@@ -35,6 +27,7 @@ public class RoomTemplateGenerator : ScriptableObject
                 roomFloor[i, j] = floorTiles[Random.Range(0, floorTiles.Length)];
             }
         }
+        roomFloor[pathCrossPoint.Item1, pathCrossPoint.Item2] = PathsCrossPoint;
         return roomFloor;
     }
     private void GenerateWalls(ref GameObject[,] room, GameObject[] walls)

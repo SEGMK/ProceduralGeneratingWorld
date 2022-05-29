@@ -6,7 +6,7 @@ public class MapGenerator : MonoBehaviour
 {
     private int NumberOfChecks = 4;
     public RoomTemplateGenerator RoomBase;
-    private GameObject[,] Map = new GameObject[99, 99];
+    private GameObject[,] Map = new GameObject[99, 99]; //make public get and private set
     private void Start()
     {
         GenerateMap();
