@@ -6,10 +6,12 @@ public class MapGenerator : MonoBehaviour
 {
     private int NumberOfChecks = 4;
     public RoomTemplateGenerator RoomBase;
+    public CreateCorridor Corridor;
     private GameObject[,] Map = new GameObject[99, 99]; //make public get and private set
     private void Start()
     {
-        GenerateMap();
+        Map = Corridor.CreateCorridorMap(Map);
+        //GenerateMap();
         PrintArrayIntoTheWorld();
     }
     private void PrintArrayIntoTheWorld()
