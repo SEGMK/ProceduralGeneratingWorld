@@ -15,7 +15,7 @@ MonoBehaviour:
   CorridorTiles:
   - {fileID: 6136863714036271880, guid: ab90ffc26dc44fc44acfeac460212390, type: 3}
   - {fileID: 5535018750124384210, guid: 49a3944e64c587743834ded9e219a378, type: 3}
-  MaxCorridorLeangth: 20
-  ChanceToEndCreationOfCorridor: 10
-  NumberOfCorridors: 10
-  ChanceToCreateCorridorSideways: 2
+  MaxCorridorLeangth: 40
+  ChanceToEndCreationOfCorridor: 20
+  NumberOfCorridors: 20
+  ChanceToCreateCorridorSideways: 3

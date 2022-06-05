@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 [CreateAssetMenu(fileName = "CreateCorridor", menuName = "RoomsCreatingClasses/CreateCorridor")]
 public class CreateCorridor : ScriptableObject
 {
@@ -34,49 +35,61 @@ public class CreateCorridor : ScriptableObject
     {
         if (Random.Range(1, ChanceToCreateCorridorSideways) == 1)
         {
-            return (ScanMapAxiesToFindNewPosition(map, map.GetLength(0), map.GetLength(1), true), true);
+            return (ScanMapAxiesToFindNewPosition(map, true), true);
         }
         else
         {
-            return (ScanMapAxiesToFindNewPosition(map, map.GetLength(1), map.GetLength(0), false), false);
+            return (ScanMapAxiesToFindNewPosition(map, false), false);
         }
     }
-    private (int, int) ScanMapAxiesToFindNewPosition(GameObject[,] map, int lengthOfAxisWhereMethodIsScanningAlong, 
-        int lengthofScannedAxies, bool isScaningAlongXAxies)
+    private (int, int) ScanMapAxiesToFindNewPosition(GameObject[,] map, bool sidewayes)
     {
-        int r = Random.Range(0, lengthOfAxisWhereMethodIsScanningAlong - 1);
-        for (int i = r; i < lengthOfAxisWhereMethodIsScanningAlong;)
+        List<int> randomOrderedPositionsOfXAxies = new List<int>();
+        List<int> randomOrderedPositionsOfYAxies = new List<int>();
+        randomOrderedPositionsOfXAxies = Enumerable.Range(0, map.GetLength(0)).OrderBy(x => Random.Range(0, map.GetLength(0))).ToList();
+        foreach (var i in randomOrderedPositionsOfXAxies)
         {
-            int r2 = Random.Range(0, lengthofScannedAxies - 1);
-            for (int j = r2; j < lengthofScannedAxies;)
+            randomOrderedPositionsOfYAxies = Enumerable.Range(0, map.GetLength(1)).OrderBy(x => Random.Range(0, map.GetLength(1))).ToList();
+            foreach (var j in randomOrderedPositionsOfYAxies)
             {
-                if (isScaningAlongXAxies)
+                if (sidewayes)
                 {
-                    if (map[i, j] != null)
-                    {
+                    if (map[i, j] != null && IsPositionAppropriate(map, (i, j), sidewayes))
                         return (i, j);
-                    }
+                    else
+                        continue;
                 }
                 else
                 {
-                    if (map[j, i] != null)
-                    {
+                    if (map[j, i] != null && IsPositionAppropriate(map, (i, j), sidewayes))
                         return (j, i);
-                    }
+                    else
+                        continue;
                 }
-                j++;
-                if (lengthofScannedAxies == j)
-                    j = 0;
-                if (j == r2)
-                    break;
             }
-            i++;
-            if (lengthOfAxisWhereMethodIsScanningAlong == i)
-                i = 0;
-            if (i == r)
-                break;
         }
-        throw new System.Exception("Map seems empty");
+        return ScanMapAxiesToFindNewPosition(map, !sidewayes); //if there can not be any more corridors in exact asxies then change the axies
+    }
+    private bool IsPositionAppropriate(GameObject[,] map, (int, int) position, bool sidewayes)
+    {
+        try
+        {
+            if (sidewayes)
+            {
+                if (map[position.Item1 - 1, position.Item2] != null || map[position.Item1 + 1, position.Item2] != null)
+                    return false;
+            }
+            else
+            {
+                if (map[position.Item1, position.Item2 + 1] != null || map[position.Item1, position.Item2 + 1] != null)
+                    return false;
+            }
+        }
+        catch (System.IndexOutOfRangeException)
+        {
+            return false;
+        }
+        return true;
     }
     private void GenerateCorridor(ref GameObject[,] map, (int, int) startingPoint, bool sidewayes)
     {
