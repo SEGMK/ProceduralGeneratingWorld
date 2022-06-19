@@ -18,4 +18,4 @@ MonoBehaviour:
   MaxCorridorLeangth: 40
   ChanceToEndCreationOfCorridor: 20
   NumberOfCorridors: 20
-  ChanceToCreateCorridorSideways: 3
+  ChanceToCreateCorridorSideways: 5

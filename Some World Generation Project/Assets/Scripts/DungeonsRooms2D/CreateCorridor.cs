@@ -10,6 +10,7 @@ public class CreateCorridor : ScriptableObject
     [SerializeField] private int ChanceToEndCreationOfCorridor = 20;
     [SerializeField] private int NumberOfCorridors = 30;
     [SerializeField] private int ChanceToCreateCorridorSideways = 4;
+    [SerializeField] private int MinLenghtOfCorridor = 5;
     public GameObject[,] CreateCorridorMap(GameObject[,] map)
     {
         ((int, int), bool) startingPointAndDirection = ((Random.Range(1, map.GetLength(0) - 1), Random.Range(1, map.GetLength(1) - 1)), true);
@@ -54,15 +55,15 @@ public class CreateCorridor : ScriptableObject
             {
                 if (sidewayes)
                 {
-                    if (map[i, j] != null && IsPositionAppropriate(map, (i, j), sidewayes))
-                        return (i, j);
+                    if (map[j, i] != null && IsNotOverlapping(map, (i, j), sidewayes) && IsNotNearToAnotherCorridor(map, (i, j)))
+                        return (j, i);
                     else
                         continue;
                 }
                 else
                 {
-                    if (map[j, i] != null && IsPositionAppropriate(map, (i, j), sidewayes))
-                        return (j, i);
+                    if (map[i, j] != null && IsNotOverlapping(map, (i, j), sidewayes) && IsNotNearToAnotherCorridor(map, (i, j)))
+                        return (i, j);
                     else
                         continue;
                 }
@@ -70,7 +71,21 @@ public class CreateCorridor : ScriptableObject
         }
         return ScanMapAxiesToFindNewPosition(map, !sidewayes); //if there can not be any more corridors in exact asxies then change the axies
     }
-    private bool IsPositionAppropriate(GameObject[,] map, (int, int) position, bool sidewayes)
+    private bool IsNotNearToAnotherCorridor(GameObject[,] map, (int, int) position)
+    {
+        try
+        {
+            if (map[position.Item1 + 1, position.Item2 + 1] != null || map[position.Item1 + 1, position.Item2 - 1] != null ||
+                map[position.Item1 - 1, position.Item2 + 1] != null || map[position.Item1 - 1, position.Item2 - 1] != null)
+                return false;
+        }
+        catch (System.IndexOutOfRangeException)
+        {
+            return false;
+        }
+        return true;
+    }
+    private bool IsNotOverlapping(GameObject[,] map, (int, int) position, bool sidewayes)
     {
         try
         {
@@ -93,10 +108,10 @@ public class CreateCorridor : ScriptableObject
     }
     private void GenerateCorridor(ref GameObject[,] map, (int, int) startingPoint, bool sidewayes)
     {
-        bool positiveWay = System.Convert.ToBoolean(Random.Range(0, 1));
+        bool positiveWay = System.Convert.ToBoolean(Random.Range(0, 2));
         for (int i = 1; i <= MaxCorridorLeangth; i++)
         {
-            if (Random.Range(1, ChanceToEndCreationOfCorridor) == 1)
+            if (Random.Range(1, ChanceToEndCreationOfCorridor) == 1 && MinLenghtOfCorridor <= i)
                 break;
             try
             {
