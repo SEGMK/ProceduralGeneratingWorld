@@ -20,4 +20,4 @@ MonoBehaviour:
   - {fileID: 5853632498627872431, guid: d0dc25fc9489e424098f479c34724545, type: 3}
   PathsCrossPoint: {fileID: 9194912249084664182, guid: 0f205f25125615444938a00ccf2b7255, type: 3}
   MinRoomSize: 5
-  MaxRoomSize: 12
+  MaxRoomSize: 7

@@ -1,17 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class MapGenerator : MonoBehaviour
 {
-    private int NumberOfChecks = 4;
     public RoomTemplateGenerator RoomBase;
     public CreateCorridor Corridor;
-    private GameObject[,] Map = new GameObject[99, 99]; //make public get and private set
+    private GameObject[,] Map = new GameObject[99, 99];
     private void Start()
     {
-        Map = Corridor.CreateCorridorMap(Map);
-        //GenerateMap();
+        GenerateMap();
         PrintArrayIntoTheWorld();
     }
     private void PrintArrayIntoTheWorld()
@@ -31,38 +30,78 @@ public class MapGenerator : MonoBehaviour
     }
     public void GenerateMap()
     {
+        Map = Corridor.CreateCorridorMap(Map);
         bool thereIsStillSpace = true;
+        (int, int) possiblePositionOfTheRoom;
         while (thereIsStillSpace)
         {
             GameObject[,] room = GenerateRoom();
-            (int, int) possiblePositionOfTheRoom;
-            for (int i = 0; i < NumberOfChecks; i++)
+            try
             {
-                possiblePositionOfTheRoom = (Random.Range(0, 99), Random.Range(0, 99));
-                if (Map[possiblePositionOfTheRoom.Item1, possiblePositionOfTheRoom.Item2] == null)
+                possiblePositionOfTheRoom = PossibleRoomPositionOnTheMap((room.GetLength(0) - 1, room.GetLength(1) - 1));
+            }
+            catch (System.IndexOutOfRangeException) //create your own ExceptionClass
+            {
+                break;
+            }
+            PasteRoomIntoTheMap(room, possiblePositionOfTheRoom);
+        }
+    }
+    private (int, int) PossibleRoomPositionOnTheMap((int, int) roomSize) //push this randomizing thing to static class
+    {
+        List<int> randomOrderedPositionsOfXAxies = new List<int>();
+        List<int> randomOrderedPositionsOfYAxies = new List<int>();
+        randomOrderedPositionsOfXAxies = Enumerable.Range(0, Map.GetLength(0)).OrderBy(x => Random.Range(0, Map.GetLength(0))).ToList();
+        foreach (var i in randomOrderedPositionsOfXAxies)
+        {
+            randomOrderedPositionsOfYAxies = Enumerable.Range(0, Map.GetLength(1)).OrderBy(x => Random.Range(0, Map.GetLength(1))).ToList();
+            foreach (var j in randomOrderedPositionsOfYAxies)
+            {
+                if (Map[i, j] != null && Map[i, j].tag == "Corridor")
                 {
-                    i = 0;
-                    if (CheckIfPositionIsEmpty(possiblePositionOfTheRoom, (room.GetLength(0), room.GetLength(1))))
-                    {
-                        PasteRoomIntoTheMap(room, possiblePositionOfTheRoom);
-                        break;
-                    }
-                }
-                if (!(i < NumberOfChecks - 1))
-                {
-                    thereIsStillSpace = false;
+                    (int, int)? roomRandomizedPosition = RandomizePosiblePosition(roomSize, (i, j));
+                    if(roomRandomizedPosition != null)
+                        return ((int, int))roomRandomizedPosition;
                 }
             }
         }
+        throw new System.IndexOutOfRangeException("There can not be room of this size on the map");
     }
-    private void PasteRoomIntoTheMap(GameObject[,] room, (int, int) positionOnTheMap)
+    private (int, int)? RandomizePosiblePosition((int, int) roomSize, (int, int) possiblePosition)
+    {
+        List<int> rangeOfPosiblePositionsX = new List<int>();
+        List<int> rangeOfPosiblePositionsY = new List<int>();
+        rangeOfPosiblePositionsX = Enumerable.Range(0, roomSize.Item1).OrderBy(x => Random.Range(0, roomSize.Item1)).ToList();
+        foreach (var i in rangeOfPosiblePositionsX)
+        {
+            rangeOfPosiblePositionsY = Enumerable.Range(0, roomSize.Item2).OrderBy(x => Random.Range(0, roomSize.Item2)).ToList();
+            foreach (var j in rangeOfPosiblePositionsY)
+            {
+                int possiblePositionX = possiblePosition.Item1 - i;
+                int possiblePositionY = possiblePosition.Item2 - j;
+                if (!IsRoomOutOfTheMapBoundaries((possiblePositionX, possiblePositionY), roomSize) && !IsThereAnotherRoom((possiblePositionX, possiblePositionY), roomSize))
+                {
+                    return (possiblePositionX, possiblePositionY);
+                }
+            }
+        }
+        return null;
+    }
+    private bool IsRoomOutOfTheMapBoundaries((int, int) roomPosition, (int, int) roomSize)
+    {
+        if (Map.GetLength(0) < roomPosition.Item1 + roomSize.Item1 || Map.GetLength(1) < roomPosition.Item2 + roomSize.Item2)
+            return true;
+        else
+            return false;
+    }
+    private void PasteRoomIntoTheMap(GameObject[,] room, (int, int) possiblePositionOfTheRoom)
     {
         (int, int) roomSize = (room.GetLength(0), room.GetLength(1));
         int roomsXAxesDimention = 0;
         int roomsYAxesDimention = 0;
-        for (int i = positionOnTheMap.Item1; i < positionOnTheMap.Item1 + roomSize.Item1; i++)
+        for (int i = possiblePositionOfTheRoom.Item1; i < possiblePositionOfTheRoom.Item1 + roomSize.Item1; i++)
         {
-            for (int j = positionOnTheMap.Item2; j < positionOnTheMap.Item2 + roomSize.Item2; j++)
+            for (int j = possiblePositionOfTheRoom.Item2; j < possiblePositionOfTheRoom.Item2 + roomSize.Item2; j++)
             {
                 Map[i, j] = room[roomsXAxesDimention, roomsYAxesDimention];
                 roomsYAxesDimention++;
@@ -71,25 +110,19 @@ public class MapGenerator : MonoBehaviour
             roomsXAxesDimention++;
         }
     }
-    private bool CheckIfPositionIsEmpty((int, int) possiblePositionOfTheRoom, (int, int) roomSize)
+    private bool IsThereAnotherRoom((int, int) possiblePositionOfTheRoom, (int, int) roomSize)
     {
-        if (Map.GetLength(0) < possiblePositionOfTheRoom.Item1 + roomSize.Item1 || Map.GetLength(1) < possiblePositionOfTheRoom.Item2 + roomSize.Item2)
+        for (int i = possiblePositionOfTheRoom.Item1; i <= possiblePositionOfTheRoom.Item1 + roomSize.Item1; i++)
         {
-            //cuz of IndexOutOfRangeException and try...catch is SOOOOO slow
-            return false;
-        }
-        bool isEmpty = true;
-        for (int i = possiblePositionOfTheRoom.Item1; i < possiblePositionOfTheRoom.Item1 + roomSize.Item1; i++)
-        {
-            for (int j = possiblePositionOfTheRoom.Item2; j < possiblePositionOfTheRoom.Item2 + roomSize.Item2; j++)
+            for (int j = possiblePositionOfTheRoom.Item2; j <= possiblePositionOfTheRoom.Item2 + roomSize.Item2; j++)
             {
-                if (!(Map[i, j] == null))
+                if (Map[i, j] != null && Map[i, j].tag != "Corridor")
                 {
-                    isEmpty = false;
+                    return true;
                 }
             }
         }
-        return isEmpty;
+        return false;
     }
     private GameObject[,] GenerateRoom()
     {

@@ -5,7 +5,7 @@ using System.Linq;
 [CreateAssetMenu(fileName = "CreateCorridor", menuName = "RoomsCreatingClasses/CreateCorridor")]
 public class CreateCorridor : ScriptableObject
 {
-    public GameObject[] CorridorTiles;
+    [SerializeField] private GameObject[] CorridorTiles;
     [SerializeField] private int MaxCorridorLeangth = 20;
     [SerializeField] private int ChanceToEndCreationOfCorridor = 20;
     [SerializeField] private int NumberOfCorridors = 30;
@@ -69,6 +69,7 @@ public class CreateCorridor : ScriptableObject
                 }
             }
         }
+        //StackOverflowException here
         return ScanMapAxiesToFindNewPosition(map, !sidewayes); //if there can not be any more corridors in exact asxies then change the axies
     }
     private bool IsNotNearToAnotherCorridor(GameObject[,] map, (int, int) position)
