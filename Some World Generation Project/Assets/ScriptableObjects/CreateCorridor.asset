@@ -15,8 +15,10 @@ MonoBehaviour:
   CorridorTiles:
   - {fileID: 7488204548028048227, guid: 42f8f0942c77f4b4a959c2e7cf9fd2f1, type: 3}
   - {fileID: 5071145876783502962, guid: c4d143a56fe66374d8008025defe58e4, type: 3}
-  MaxCorridorLeangth: 40
+  CorridorTileVertical: {fileID: 7488204548028048227, guid: 42f8f0942c77f4b4a959c2e7cf9fd2f1, type: 3}
+  CorridorTileHorizontal: {fileID: 5071145876783502962, guid: c4d143a56fe66374d8008025defe58e4, type: 3}
+  MaxCorridorLeangth: 7
   ChanceToEndCreationOfCorridor: 20
-  NumberOfCorridors: 20
-  ChanceToCreateCorridorSideways: 3
-  MinLenghtOfCorridor: 5
+  NumberOfCorridors: 12
+  ChanceToCreateCorridorHorizontal: 4
+  MinLenghtOfCorridor: 4
