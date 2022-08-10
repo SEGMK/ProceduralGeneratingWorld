@@ -15,7 +15,6 @@ public class CreateCorridor : ScriptableObject
     [SerializeField] private int MinLenghtOfCorridor = 5;
     public GameObject[,] CreateCorridorMap(GameObject[,] map)
     {
-        //map[map.GetLength(0) / 2, map.GetLength(1) / 2] = CorridorTileHorizontal;
         ((int, int), bool) startingPointAndDirection = ((map.GetLength(0) / 2, map.GetLength(1) / 2), true);
         for (int i = 0; i < NumberOfCorridors; i++)
         {
@@ -57,7 +56,6 @@ public class CreateCorridor : ScriptableObject
                 }
             }
         }
-        //StackOverflowException here 
         return ScanMapAxiesToFindNewPosition(map, !horizontal); //if there can not be any more corridors in exact asxies then change the axies
     }
     private GameObject[,] GenerateCorridor(GameObject[,] map, (int, int) position, bool horizontal)
@@ -80,39 +78,19 @@ public class CreateCorridor : ScriptableObject
                 {
                     case "XP":
                         newPosition = (position.Item1 + i, position.Item2);
-                        if (!(IsNotOverlapping(map, (newPosition.Item1 + 1, newPosition.Item2), option, tile) && IsNotNearToAnotherCorridor(map, newPosition, tile)))
-                        {
-                            ResetGenerateCorridorMethod(ref newMap, map, ref tile, ref position, ref horizontal, ref i, loopInitialValue, ref option);
-                            continue;
-                        }
-                        newMap[newPosition.Item1, newPosition.Item2] = tile;
+                        CreateCorridorOnSpecifiedAxies(map, ref newMap, ref tile, newPosition, ref option, ref position, ref horizontal, ref i, loopInitialValue);
                         break;
                     case "XN":
                         newPosition = (position.Item1 - i, position.Item2);
-                        if (!(IsNotOverlapping(map, (newPosition.Item1 - 1, newPosition.Item2), option, tile) && IsNotNearToAnotherCorridor(map, newPosition, tile)))
-                        {
-                            ResetGenerateCorridorMethod(ref newMap, map, ref tile, ref position, ref horizontal, ref i, loopInitialValue, ref option);
-                            continue;
-                        }
-                        newMap[newPosition.Item1, newPosition.Item2] = tile;
+                        CreateCorridorOnSpecifiedAxies(map, ref newMap, ref tile, newPosition, ref option, ref position, ref horizontal, ref i, loopInitialValue);
                         break;
                     case "YP":
                         newPosition = (position.Item1, position.Item2 + i);
-                        if (!(IsNotOverlapping(map, (newPosition.Item1, newPosition.Item2 + 1), option, tile) && IsNotNearToAnotherCorridor(map, newPosition, tile)))
-                        {
-                            ResetGenerateCorridorMethod(ref newMap, map, ref tile, ref position, ref horizontal, ref i, loopInitialValue, ref option);
-                            continue;
-                        }
-                        newMap[position.Item1, position.Item2] = tile;
+                        CreateCorridorOnSpecifiedAxies(map, ref newMap, ref tile, newPosition, ref option, ref position, ref horizontal, ref i, loopInitialValue);
                         break;
                     case "YN":
                         newPosition = (position.Item1, position.Item2 - i);
-                        if (!(IsNotOverlapping(map, (newPosition.Item1, newPosition.Item2 - 1), option, tile) && IsNotNearToAnotherCorridor(map, newPosition, tile)))
-                        {
-                            ResetGenerateCorridorMethod(ref newMap, map, ref tile, ref position, ref horizontal, ref i, loopInitialValue, ref option);
-                            continue;
-                        }
-                        newMap[newPosition.Item1, newPosition.Item2] = tile;
+                        CreateCorridorOnSpecifiedAxies(map, ref newMap, ref tile, newPosition, ref option, ref position, ref horizontal, ref i, loopInitialValue);
                         break;
                 }
             }
@@ -125,6 +103,16 @@ public class CreateCorridor : ScriptableObject
             }
         }
         return newMap;
+    }
+    private void CreateCorridorOnSpecifiedAxies(GameObject[,] map, ref GameObject[,] newMap, ref GameObject tile, (int, int) newPosition, ref string option,
+        ref (int, int) position, ref bool horizontal, ref int i, int loopInitialValue)
+    {
+        if (!(IsNotOverlapping(map, (newPosition.Item1, newPosition.Item2), option, tile) && IsNotNearToAnotherCorridor(map, newPosition, tile)))
+        {
+            ResetGenerateCorridorMethod(ref newMap, map, ref tile, ref position, ref horizontal, ref i, loopInitialValue, ref option);
+            return;
+        }
+        newMap[newPosition.Item1, newPosition.Item2] = tile;
     }
     private string DefineOption(bool horizontal, ref GameObject tile, bool positiveWay)
     {
@@ -144,29 +132,15 @@ public class CreateCorridor : ScriptableObject
     }
     private bool IsNotNearToAnotherCorridor(GameObject[,] map, (int, int) position, GameObject tile)
     {
-        try
-        {
-            if (map[position.Item1 + 1, position.Item2 + 1] == tile || map[position.Item1 + 1, position.Item2 - 1] == tile ||
-                map[position.Item1 - 1, position.Item2 + 1] == tile || map[position.Item1 - 1, position.Item2 - 1] == tile)
-                return false;
-        }
-        catch (System.IndexOutOfRangeException)
-        {
+        if (map[position.Item1 + 1, position.Item2 + 1] == tile || map[position.Item1 + 1, position.Item2 - 1] == tile ||
+            map[position.Item1 - 1, position.Item2 + 1] == tile || map[position.Item1 - 1, position.Item2 - 1] == tile)
             return false;
-        }
         return true;
     }
     private bool IsNotOverlapping(GameObject[,] map, (int, int) position, string option, GameObject tile)
     {
-        try
-        {
-            if (map[position.Item1, position.Item2] == tile)
-                return false;
-        }
-        catch (System.IndexOutOfRangeException)
-        {
+        if (map[position.Item1, position.Item2] == tile)
             return false;
-        }
         return true;
     }
     private void ResetGenerateCorridorMethod(ref GameObject[,] newMap, GameObject[,] map, ref GameObject tile, ref (int, int) position, ref bool direction, ref int iterableVariable,
