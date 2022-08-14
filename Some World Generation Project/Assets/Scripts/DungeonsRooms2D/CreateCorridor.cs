@@ -32,31 +32,27 @@ public class CreateCorridor : ScriptableObject
     }
     private (int, int) ScanMapAxiesToFindNewPosition(GameObject[,] map, bool horizontal)
     {
-        List<int> randomOrderedPositionsOfXAxies = new List<int>();
-        List<int> randomOrderedPositionsOfYAxies = new List<int>();
-        randomOrderedPositionsOfXAxies = Enumerable.Range(0, map.GetLength(0)).OrderBy(x => Random.Range(0, map.GetLength(0))).ToList();
-        foreach (var i in randomOrderedPositionsOfXAxies)
+        (int, int)? position = (0, 0);
+        List<System.Func<object[,], int, int, bool>> list = new List<System.Func<object[,], int, int, bool>>();
+        if (horizontal)
         {
-            randomOrderedPositionsOfYAxies = Enumerable.Range(0, map.GetLength(1)).OrderBy(x => Random.Range(0, map.GetLength(1))).ToList();
-            foreach (var j in randomOrderedPositionsOfYAxies)
+            list.Add((object[,] map, int i, int j) => { return map[j, i] != null; });
+            position = Randomizeinator.RandomPositionFrom2DArray(list, map);
+            if (position != null)
             {
-                if (horizontal)
-                {
-                    if (map[j, i] != null)
-                        return (j, i);
-                    else
-                        continue;
-                }
-                else
-                {
-                    if (map[i, j] != null)
-                        return (i, j);
-                    else
-                        continue;
-                }
+                return (position.Value.Item2, position.Value.Item1);
             }
         }
-        return ScanMapAxiesToFindNewPosition(map, !horizontal); //if there can not be any more corridors in exact asxies then change the axies
+        else
+        {
+            list.Add((object[,] map, int i, int j) => { return map[i, j] != null; });
+            position = Randomizeinator.RandomPositionFrom2DArray(list, map);
+            if (position != null)
+            {
+                return position.Value;
+            }
+        }
+        return ScanMapAxiesToFindNewPosition(map, !horizontal);
     }
     private GameObject[,] GenerateCorridor(GameObject[,] map, (int, int) position, bool horizontal)
     {

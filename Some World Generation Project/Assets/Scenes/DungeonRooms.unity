@@ -154,8 +154,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   RoomBase: {fileID: 11400000, guid: d93f22eaa0f456949974e4358f523c04, type: 2}
   Corridor: {fileID: 11400000, guid: a0cf690245a00b5418084400b22e83c9, type: 2}
-  MapWidth: 20
-  MapHeight: 20
+  MapWidth: 50
+  MapHeight: 50
 --- !u!4 &29466950
 Transform:
   m_ObjectHideFlags: 0
