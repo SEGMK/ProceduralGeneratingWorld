@@ -1,3 +1,2 @@
-﻿- Corridor length less than MinLenghtOfCorridors - this may be coused cuz of possibility that the corridors will try spawn out of the map max size and they are cut off mid creation
-- Corridors may be created near each other - this is coused cuz method that is looking for corridors near by is run only once at the start of the creation of corridor.
-- Ininite loading - its coused of first definition of the startingPointAndDirection that can be defined in the way that first few blocks of the corridor will be created out of boundaries
+﻿IndexOutOfRangeException MapGenerator line: 88 - Method is looking for the room that is out of the map. Probably the IsRoomOutOfTheMapBoundaries() is not returning value accoriding to the possible room position
+Rooms are spawning out of the corridors path - This may be coused math function problem in RandomizePosiblePosition()
